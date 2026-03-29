@@ -5,7 +5,7 @@ Uses JSON instead of CSV to avoid parsing issues
 """
 
 from elasticsearch import Elasticsearch, helpers
-import pandas as pd
+import pandas as pd            
 import numpy as np
 import warnings
 warnings.filterwarnings('ignore')
@@ -15,26 +15,26 @@ print("INDEXING DATA INTO ELASTICSEARCH")
 print("="*70)
 
 # Connect
-print("\n🔌 Connecting to Elasticsearch...")
+print("\n Connecting to Elasticsearch...")
 es = Elasticsearch(['http://localhost:9200'])
 if not es.ping():
-    print("❌ ERROR: Elasticsearch not running!")
+    print("ERROR: Elasticsearch not running!")
     exit(1)
-print("✅ Connected!")
+print("Connected!")
 
 # Load data (use JSON instead of CSV)
-print("\n📂 Loading prepared data...")
+print("\nLoading prepared data...")
 df = pd.read_json('indexed_dataset.json', lines=True)
 embeddings = np.load('indexed_embeddings.npy')
-print(f"✅ Loaded {len(df):,} documents with embeddings")
+print(f"Loaded {len(df):,} documents with embeddings")
 
 # Create index
 index_name = 'ai_coding_search'
-print(f"\n📝 Creating index: {index_name}")
+print(f"\nCreating index: {index_name}")
 
 if es.indices.exists(index=index_name):
     es.indices.delete(index=index_name)
-    print("🗑️  Deleted old index")
+    print("Deleted old index")
 
 mapping = {
     "settings": {
@@ -56,11 +56,11 @@ mapping = {
     }
 }
 
-es.indices.create(index=index_name, body=mapping)
-print("✅ Index created")
+es.indices.create(index=index_name, body=mapping) # type: ignore
+print("Index created")
 
 # Bulk index
-print(f"\n📤 Indexing {len(df):,} documents...")
+print(f"\nIndexing {len(df):,} documents...")
 
 actions = []
 indexed = 0
@@ -93,7 +93,7 @@ if actions:
     helpers.bulk(es, actions, raise_on_error=False)
     indexed += len(actions)
 
-print(f"\n✅ Indexing complete! {indexed:,} documents")
+print(f"\nIndexing complete! {indexed:,} documents")
 
 # Verify
 es.indices.refresh(index=index_name)
@@ -103,5 +103,5 @@ print(f"\n{'='*70}")
 print(f"INDEX STATISTICS")
 print(f"{'='*70}")
 print(f"Documents: {count:,}")
-print(f"\n✅ Index '{index_name}' ready for search!")
+print(f"\nIndex '{index_name}' ready for search!")
 print(f"{'='*70}\n")

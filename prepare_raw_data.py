@@ -26,16 +26,16 @@ def clean_text(text):
     return text[:5000]
 
 # Load raw data
-print("\n📂 Loading raw_data.json...")
+print("\nLoading raw_data.json...")
 with open('raw_data.json', 'r', encoding='utf-8') as f:
     raw_data = json.load(f)
 
-print(f"✅ Loaded {len(raw_data):,} posts")
+print(f"Loaded {len(raw_data):,} posts")
 
 # Extract all text entries
 all_entries = []
 
-print("\n🔄 Processing entries...")
+print("\nProcessing entries...")
 for post in tqdm(raw_data, desc="Processing"):
     # Post-level text
     if post.get('Text') and len(str(post['Text']).strip()) > 10:
@@ -69,7 +69,7 @@ for post in tqdm(raw_data, desc="Processing"):
 df = pd.DataFrame(all_entries)
 
 # Remove duplicates
-print("\n🔄 Removing duplicates...")
+print("\nRemoving duplicates...")
 df = df.drop_duplicates(subset=['id'], keep='first')
 df = df.drop_duplicates(subset=['text'], keep='first')
 
@@ -84,8 +84,8 @@ print(f"\nBy source:")
 print(df['source'].value_counts())
 
 # Generate embeddings
-print(f"\n🧠 Generating embeddings for {len(df):,} documents...")
-print("⏱️  Estimated time: 15-25 minutes")
+print(f"\nGenerating embeddings for {len(df):,} documents...")
+print("Estimated time: 15-25 minutes")
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 texts = df['text'].tolist()
@@ -98,7 +98,7 @@ embeddings = model.encode(
 )
 
 # Save with proper escaping
-print("\n💾 Saving files...")
+print("\nSaving files...")
 df.to_csv('indexed_dataset.csv', index=False, encoding='utf-8', escapechar='\\')
 np.save('indexed_embeddings.npy', embeddings)
 
@@ -106,11 +106,11 @@ np.save('indexed_embeddings.npy', embeddings)
 df.to_json('indexed_dataset.json', orient='records', lines=True)
 
 print(f"\n{'='*70}")
-print(f"✅ PREPARATION COMPLETE!")
+print(f"PREPARATION COMPLETE!")
 print(f"{'='*70}")
 print(f"Documents: {len(df):,}")
-print(f"Embeddings: {embeddings.shape}")
-print(f"\n💾 Files created:")
+print(f"Embeddings: {embeddings.shape}") # type: ignore
+print(f"\nFiles created:")
 print(f"  - indexed_dataset.csv")
 print(f"  - indexed_dataset.json (backup)")
 print(f"  - indexed_embeddings.npy")
